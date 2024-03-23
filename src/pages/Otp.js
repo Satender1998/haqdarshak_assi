@@ -38,7 +38,7 @@ const Otp = () => {
       }
     }
   };
-
+// log
   return (
     <>
       <section>
