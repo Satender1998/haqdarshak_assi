@@ -118,6 +118,7 @@ exports.userOtpSend = async (req, res) => {
 
 exports.userLogin = async (req, res) => {
   const { email, otp } = req.body;
+  console.log(email, typeof(otp));
 
   if (!otp || !email) {
     res.status(400).json({ error: "Please Enter Your OTP and email" });
@@ -125,8 +126,10 @@ exports.userLogin = async (req, res) => {
 
   try {
     const otpverification = await userotp.findOne({ email: email });
+    console.log(typeof(otpverification.otp));
 
-    if (otpverification.otp === otp) {
+    if(otpverification.otp == otp) {
+      console.log("preuser");
       const preuser = await users.findOne({ email: email });
 
       // token generate
@@ -139,5 +142,17 @@ exports.userLogin = async (req, res) => {
     }
   } catch (error) {
     res.status(400).json({ error: "Invalid Details", error });
+  }
+};
+
+exports.userLogout = async (req, res) => {
+  try {
+    console.log(req.user.tokens);
+    req.user.tokens = [];
+    await req.user.save();
+
+    req.status(200).json({ message: "User logged out successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Unable to logout", error });
   }
 };
