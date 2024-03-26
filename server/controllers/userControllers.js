@@ -1,6 +1,7 @@
 const users = require("../models/userSchema");
 const userotp = require("../models/userOtp");
 const nodemailer = require("nodemailer");
+const jwt = require('jsonwebtoken');
 
 // email config
 const tarnsporter = nodemailer.createTransport({
@@ -118,7 +119,7 @@ exports.userOtpSend = async (req, res) => {
 
 exports.userLogin = async (req, res) => {
   const { email, otp } = req.body;
-  console.log(email, typeof(otp));
+  // console.log(email, typeof(otp));
 
   if (!otp || !email) {
     res.status(400).json({ error: "Please Enter Your OTP and email" });
@@ -126,10 +127,10 @@ exports.userLogin = async (req, res) => {
 
   try {
     const otpverification = await userotp.findOne({ email: email });
-    console.log(typeof(otpverification.otp));
+    // console.log(typeof(otpverification.otp));
 
     if(otpverification.otp == otp) {
-      console.log("preuser");
+      // console.log("preuser");
       const preuser = await users.findOne({ email: email });
 
       // token generate
@@ -146,12 +147,14 @@ exports.userLogin = async (req, res) => {
 };
 
 exports.userLogout = async (req, res) => {
-  try {
-    console.log(req.user.tokens);
-    req.user.tokens = [];
-    await req.user.save();
+  console.log("hello");
 
-    req.status(200).json({ message: "User logged out successfully" });
+  
+  try {
+    req.user.tokens = []; // Clear all tokens for the user
+    await req.user.save(); // Save the user object to update the changes
+
+    res.status(200).json({ message: "User logged out successfully" });
   } catch (error) {
     res.status(500).json({ error: "Unable to logout", error });
   }
